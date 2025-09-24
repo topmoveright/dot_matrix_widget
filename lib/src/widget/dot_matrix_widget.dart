@@ -26,9 +26,10 @@ class DotMatrixWidget extends StatefulWidget {
     this.blankColor = const Color(0x11000000),
     this.alphaThreshold = 16,
     this.pixelRatio,
-  })  : assert(dotSize > 0),
-        assert(spacing >= 0),
-        assert(alphaThreshold >= 0 && alphaThreshold <= 255);
+    this.overlayVisible = true,
+  }) : assert(dotSize > 0),
+       assert(spacing >= 0),
+       assert(alphaThreshold >= 0 && alphaThreshold <= 255);
 
   /// The widget to render in dot-matrix style.
   final Widget child;
@@ -62,6 +63,9 @@ class DotMatrixWidget extends StatefulWidget {
 
   /// Optional pixel ratio override for capture.
   final double? pixelRatio;
+
+  /// Whether the dot-matrix overlay should be displayed above the child.
+  final bool overlayVisible;
 
   @override
   State<DotMatrixWidget> createState() => _DotMatrixWidgetState();
@@ -112,7 +116,8 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
         widget.blankColor != oldWidget.blankColor ||
         widget.shape != oldWidget.shape ||
         widget.alphaThreshold != oldWidget.alphaThreshold ||
-        widget.alignment != oldWidget.alignment;
+        widget.alignment != oldWidget.alignment ||
+        widget.overlayVisible != oldWidget.overlayVisible;
 
     if (visualChange) {
       setState(() {});
@@ -182,7 +187,9 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     ui.Image? capturedImage;
     try {
       final double pixelRatio =
-          widget.pixelRatio ?? MediaQuery.maybeOf(context)?.devicePixelRatio ?? 1.0;
+          widget.pixelRatio ??
+          MediaQuery.maybeOf(context)?.devicePixelRatio ??
+          1.0;
       capturedImage = await boundary.toImage(pixelRatio: pixelRatio);
       final DotMatrixFrameData frame = await _renderer.render(
         image: capturedImage,
@@ -237,23 +244,16 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
         return Stack(
           fit: StackFit.expand,
           children: [
-            if (painter != null)
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: painter,
-                  isComplex: true,
-                ),
-              ),
             IgnorePointer(
               child: RepaintBoundary(
                 key: _repaintKey,
-                child: AnimatedOpacity(
-                  opacity: 0,
-                  duration: const Duration(milliseconds: 200),
-                  child: SizedBox.expand(child: widget.child),
-                ),
+                child: SizedBox.expand(child: widget.child),
               ),
             ),
+            if (painter != null && widget.overlayVisible)
+              Positioned.fill(
+                child: CustomPaint(painter: painter, isComplex: true),
+              ),
           ],
         );
       },

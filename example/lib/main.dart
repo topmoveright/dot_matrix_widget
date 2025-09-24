@@ -146,46 +146,59 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
 
   Widget _buildPreviewChild(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
-    return Container(
-      decoration: const BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Color(0xFF0D2847), Color(0xFF09111C)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: Image.asset(
+            'assets/example.png',
+            fit: BoxFit.cover,
+          ),
         ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              'DOT MATRIX',
-              style: textTheme.displaySmall?.copyWith(
-                color: Colors.white,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 8,
+        Positioned.fill(
+          child: DecoratedBox(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [Color(0xCC0D2847), Color(0xCC09111C)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
             ),
-            const SizedBox(height: 12),
-            Text(
-              'Bring retro vibes to any widget. Experiment with LED shapes, colors, and classic display styles.',
-              style: textTheme.bodyLarge?.copyWith(color: Colors.white70, height: 1.4),
-            ),
-            const SizedBox(height: 24),
-            Wrap(
-              spacing: 12,
-              runSpacing: 12,
-              children: const [
-                _DemoTag(label: 'Analog TV'),
-                _DemoTag(label: 'LED Panel'),
-                _DemoTag(label: 'Vintage Amber'),
-              ],
-            ),
-          ],
+          ),
         ),
-      ),
+        Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'DOT MATRIX',
+                style: textTheme.displaySmall?.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 8,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                'Bring retro vibes to any widget. Experiment with LED shapes, colors, and classic display styles.',
+                style: textTheme.bodyLarge?.copyWith(color: Colors.white70, height: 1.4),
+              ),
+              const SizedBox(height: 24),
+              Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                children: const [
+                  _DemoTag(label: 'Analog TV'),
+                  _DemoTag(label: 'LED Panel'),
+                  _DemoTag(label: 'Vintage Amber'),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -319,6 +332,14 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
           spacing: 16,
           runSpacing: 16,
           children: [
+            _buildGalleryCard(
+              context,
+              title: 'Reference Photo',
+              child: Image.asset(
+                'assets/example.png',
+                fit: BoxFit.cover,
+              ),
+            ),
             _buildGalleryCard(
               context,
               title: 'Flutter Logo',

@@ -16,6 +16,9 @@ class DotMatrixPainter extends CustomPainter {
   })  : _dotPaint = Paint()..style = PaintingStyle.fill,
         _blankPaint = Paint()
           ..style = PaintingStyle.fill
+          ..color = blankColor,
+        _backgroundPaint = Paint()
+          ..style = PaintingStyle.fill
           ..color = blankColor;
 
   final DotMatrixFrameData frame;
@@ -26,12 +29,17 @@ class DotMatrixPainter extends CustomPainter {
 
   final Paint _dotPaint;
   final Paint _blankPaint;
+  final Paint _backgroundPaint;
 
   @override
   void paint(Canvas canvas, Size size) {
     if (frame.length == 0) {
       return;
     }
+
+    // Paint solid background to mask the source widget beneath the overlay.
+    _backgroundPaint.color = blankColor;
+    canvas.drawRect(Offset.zero & size, _backgroundPaint);
 
     final double scale = _calculateUniformScale(size, frame.boardSize);
     final double dotSize = frame.dotSize * scale;
