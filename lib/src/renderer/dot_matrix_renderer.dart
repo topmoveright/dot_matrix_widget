@@ -23,7 +23,8 @@ class DotMatrixRenderer {
     final int columns = _safeCount(((imageWidth + spacing) / cellSize).floor());
     final int rows = _safeCount(((imageHeight + spacing) / cellSize).floor());
 
-    final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.rawRgba);
+    final ByteData? byteData =
+        await image.toByteData(format: ui.ImageByteFormat.rawRgba);
     if (byteData == null) {
       throw StateError('Unable to read pixel data from image.');
     }

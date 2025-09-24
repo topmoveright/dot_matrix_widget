@@ -29,9 +29,9 @@ class DotMatrixWidget extends StatefulWidget {
     this.pixelRatio,
     this.captureInterval = const Duration(milliseconds: 33),
     this.overlayVisible = true,
-  }) : assert(dotSize > 0),
-       assert(spacing >= 0),
-       assert(alphaThreshold >= 0 && alphaThreshold <= 255);
+  })  : assert(dotSize > 0),
+        assert(spacing >= 0),
+        assert(alphaThreshold >= 0 && alphaThreshold <= 255);
 
   /// The widget to render in dot-matrix style.
   final Widget child;
@@ -107,8 +107,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
   void didUpdateWidget(covariant DotMatrixWidget oldWidget) {
     super.didUpdateWidget(oldWidget);
 
-    final bool requiresCapture =
-        widget.child != oldWidget.child ||
+    final bool requiresCapture = widget.child != oldWidget.child ||
         widget.dotSize != oldWidget.dotSize ||
         widget.spacing != oldWidget.spacing ||
         widget.pixelRatio != oldWidget.pixelRatio;
@@ -117,8 +116,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
       _scheduleCapture();
     }
 
-    final bool visualChange =
-        widget.colorMode != oldWidget.colorMode ||
+    final bool visualChange = widget.colorMode != oldWidget.colorMode ||
         widget.stylePreset != oldWidget.stylePreset ||
         widget.blankColor != oldWidget.blankColor ||
         widget.shape != oldWidget.shape ||
@@ -130,7 +128,6 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     if (visualChange) {
       setState(() {});
     }
-
   }
 
   @override
@@ -144,7 +141,9 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     if (_captureScheduled) return;
 
     final Duration? interval = widget.captureInterval;
-    if (interval != null && interval > Duration.zero && _lastCaptureTime != null) {
+    if (interval != null &&
+        interval > Duration.zero &&
+        _lastCaptureTime != null) {
       final Duration elapsed = DateTime.now().difference(_lastCaptureTime!);
       if (elapsed < interval) {
         final Duration remaining = interval - elapsed;
@@ -217,8 +216,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     _isCapturing = true;
     ui.Image? capturedImage;
     try {
-      final double pixelRatio =
-          widget.pixelRatio ??
+      final double pixelRatio = widget.pixelRatio ??
           MediaQuery.maybeOf(context)?.devicePixelRatio ??
           1.0;
       capturedImage = await boundary.toImage(pixelRatio: pixelRatio);

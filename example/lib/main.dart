@@ -103,10 +103,7 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Live preview',
-          style: Theme.of(context).textTheme.titleLarge,
-        ),
+        Text('Live preview', style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 12),
         AspectRatio(
           aspectRatio: 16 / 9,
@@ -129,10 +126,12 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
                   spacing: _spacing,
                   shape: _shape,
                   colorMode: _colorMode,
-                  singleColor:
-                      _colorMode == DotColorMode.singleColor ? _selectedSingleColor : null,
-                  stylePreset:
-                      _colorMode == DotColorMode.preset ? _selectedPreset : null,
+                  singleColor: _colorMode == DotColorMode.singleColor
+                      ? _selectedSingleColor
+                      : null,
+                  stylePreset: _colorMode == DotColorMode.preset
+                      ? _selectedPreset
+                      : null,
                   blankColor: const Color(0xFF050608),
                   child: _buildPreviewChild(context),
                 ),
@@ -150,10 +149,7 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
       fit: StackFit.expand,
       children: [
         Positioned.fill(
-          child: Image.asset(
-            'assets/example.png',
-            fit: BoxFit.cover,
-          ),
+          child: Image.asset('assets/example.png', fit: BoxFit.cover),
         ),
         Positioned.fill(
           child: DecoratedBox(
@@ -183,7 +179,10 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
               const SizedBox(height: 12),
               Text(
                 'Bring retro vibes to any widget. Experiment with LED shapes, colors, and classic display styles.',
-                style: textTheme.bodyLarge?.copyWith(color: Colors.white70, height: 1.4),
+                style: textTheme.bodyLarge?.copyWith(
+                  color: Colors.white70,
+                  height: 1.4,
+                ),
               ),
               const SizedBox(height: 24),
               Wrap(
@@ -282,10 +281,7 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
                 value: _presetKey,
                 items: _presetFactories.keys
                     .map(
-                      (key) => DropdownMenuItem(
-                        value: key,
-                        child: Text(key),
-                      ),
+                      (key) => DropdownMenuItem(value: key, child: Text(key)),
                     )
                     .toList(),
                 onChanged: (value) {
@@ -335,10 +331,7 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
             _buildGalleryCard(
               context,
               title: 'Reference Photo',
-              child: Image.asset(
-                'assets/example.png',
-                fit: BoxFit.cover,
-              ),
+              child: Image.asset('assets/example.png', fit: BoxFit.cover),
             ),
             _buildGalleryCard(
               context,
@@ -349,10 +342,7 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
               context,
               title: 'Music',
               child: const Center(
-                child: Text(
-                  '🎶',
-                  style: TextStyle(fontSize: 80),
-                ),
+                child: Text('🎶', style: TextStyle(fontSize: 80)),
               ),
             ),
             _buildGalleryCard(
@@ -373,9 +363,9 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
                 child: Text(
                   'HELLO',
                   style: Theme.of(context).textTheme.displaySmall?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        letterSpacing: 6,
-                      ),
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 6,
+                  ),
                 ),
               ),
             ),
@@ -385,8 +375,11 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
     );
   }
 
-  Widget _buildGalleryCard(BuildContext context,
-      {required String title, required Widget child}) {
+  Widget _buildGalleryCard(
+    BuildContext context, {
+    required String title,
+    required Widget child,
+  }) {
     return SizedBox(
       width: 160,
       child: Column(
@@ -406,10 +399,12 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
                   spacing: _spacing,
                   shape: _shape,
                   colorMode: _colorMode,
-                  singleColor:
-                      _colorMode == DotColorMode.singleColor ? _selectedSingleColor : null,
-                  stylePreset:
-                      _colorMode == DotColorMode.preset ? _selectedPreset : null,
+                  singleColor: _colorMode == DotColorMode.singleColor
+                      ? _selectedSingleColor
+                      : null,
+                  stylePreset: _colorMode == DotColorMode.preset
+                      ? _selectedPreset
+                      : null,
                   blankColor: const Color(0xFF050608),
                   child: Container(color: Colors.black, child: child),
                 ),
@@ -417,10 +412,7 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
             ),
           ),
           const SizedBox(height: 8),
-          Text(
-            title,
-            style: Theme.of(context).textTheme.labelLarge,
-          ),
+          Text(title, style: Theme.of(context).textTheme.labelLarge),
         ],
       ),
     );
@@ -478,16 +470,15 @@ class _DotMatrixDemoPageState extends State<DotMatrixDemoPage> {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(label, style: Theme.of(context).textTheme.bodyMedium),
-            Text(value.toStringAsFixed(1),
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(color: Colors.white70)),
+            Text(
+              value.toStringAsFixed(1),
+              style: Theme.of(
+                context,
+              ).textTheme.bodySmall?.copyWith(color: Colors.white70),
+            ),
           ],
         ),
-        Slider(
-          value: value,
-          min: min,
-          max: max,
-          onChanged: onChanged,
-        ),
+        Slider(value: value, min: min, max: max, onChanged: onChanged),
       ],
     );
   }
@@ -509,7 +500,9 @@ class _DemoTag extends StatelessWidget {
       ),
       child: Text(
         label,
-        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: Colors.white),
+        style: Theme.of(
+          context,
+        ).textTheme.labelLarge?.copyWith(color: Colors.white),
       ),
     );
   }
@@ -530,11 +523,7 @@ class _ControlSection extends StatelessWidget {
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: Colors.white10),
       ),
-      child: Wrap(
-        spacing: 20,
-        runSpacing: 20,
-        children: children,
-      ),
+      child: Wrap(spacing: 20, runSpacing: 20, children: children),
     );
   }
 }

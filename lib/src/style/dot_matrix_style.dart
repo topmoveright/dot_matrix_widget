@@ -49,7 +49,8 @@ class DotMatrixStylePreset {
         final bool scanLine = y.isOdd;
         final double scanFactor = scanLine ? 0.7 : 1.0;
         final double noise = 0.04 * math.sin((x + y) * 0.5);
-        final double value = (base * scanFactor * (1 - noise)).clamp(0.0, 255.0);
+        final double value =
+            (base * scanFactor * (1 - noise)).clamp(0.0, 255.0);
         final int alpha = (input.a * 255.0).round().clamp(0, 255);
         final int red = (value * 0.6).round().clamp(0, 255);
         final int green = (value * 0.75).round().clamp(0, 255);
@@ -81,7 +82,8 @@ class DotMatrixStylePreset {
           return (boosted.clamp(0.0, 1.0) * 255).round();
         }
 
-        final double glowPhase = math.sin((x / columns) * math.pi) * math.sin((y / rows) * math.pi);
+        final double glowPhase =
+            math.sin((x / columns) * math.pi) * math.sin((y / rows) * math.pi);
         final int glow = (30 * glowPhase.abs()).round();
         final int alpha = (input.a * 255.0).round().clamp(0, 255);
         return Color.fromARGB(
@@ -105,7 +107,8 @@ class DotMatrixStylePreset {
         required int columns,
         required int rows,
       }) {
-        final double luma = 0.2126 * input.r + 0.7152 * input.g + 0.0722 * input.b;
+        final double luma =
+            0.2126 * input.r + 0.7152 * input.g + 0.0722 * input.b;
         final double base = (luma * 255.0).clamp(0.0, 255.0);
         final double flicker = 0.05 * math.sin((x + y) * 0.8);
         final double brightness = ((base / 255.0) + flicker).clamp(0.1, 1.0);

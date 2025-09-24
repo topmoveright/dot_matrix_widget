@@ -50,8 +50,10 @@ class DotMatrixPainter extends CustomPainter {
     final double contentWidth = frame.columns * cellSize - spacing;
     final double contentHeight = frame.rows * cellSize - spacing;
 
-    final double offsetX = (size.width - contentWidth) * (frame.alignment.x + 1) / 2;
-    final double offsetY = (size.height - contentHeight) * (frame.alignment.y + 1) / 2;
+    final double offsetX =
+        (size.width - contentWidth) * (frame.alignment.x + 1) / 2;
+    final double offsetY =
+        (size.height - contentHeight) * (frame.alignment.y + 1) / 2;
 
     for (int row = 0; row < frame.rows; row++) {
       final double centerY = offsetY + row * cellSize + radius;
