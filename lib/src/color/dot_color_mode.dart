@@ -42,7 +42,7 @@ class SingleColorStrategy extends DotColorStrategy {
     required int columns,
     required int rows,
   }) {
-    return color.withAlpha(inputColor.alpha);
+    return color.withValues(alpha: inputColor.a);
   }
 }
 

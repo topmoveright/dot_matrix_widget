@@ -44,18 +44,21 @@ class DotMatrixStylePreset {
         required int columns,
         required int rows,
       }) {
-        final double luma = 0.299 * input.red + 0.587 * input.green + 0.114 * input.blue;
-        final int base = luma.round().clamp(0, 255).toInt();
+        final double luma = 0.299 * input.r + 0.587 * input.g + 0.114 * input.b;
+        final double base = (luma * 255.0).clamp(0.0, 255.0);
         final bool scanLine = y.isOdd;
         final double scanFactor = scanLine ? 0.7 : 1.0;
         final double noise = 0.04 * math.sin((x + y) * 0.5);
-        final double value = (base * scanFactor * (1 - noise)).clamp(0, 255);
-        final int tinted = value.round();
+        final double value = (base * scanFactor * (1 - noise)).clamp(0.0, 255.0);
+        final int alpha = (input.a * 255.0).round().clamp(0, 255);
+        final int red = (value * 0.6).round().clamp(0, 255);
+        final int green = (value * 0.75).round().clamp(0, 255);
+        final int blue = (value * 0.65).round().clamp(0, 255);
         return Color.fromARGB(
-          input.alpha,
-          (tinted * 0.6).round(),
-          (tinted * 0.75).round(),
-          (tinted * 0.65).round(),
+          alpha,
+          red,
+          green,
+          blue,
         );
       },
     );
@@ -73,19 +76,19 @@ class DotMatrixStylePreset {
         required int rows,
       }) {
         final double factor = 1.3;
-        int enhance(int channel) {
-          final double normalized = channel / 255.0;
-          final double boosted = math.pow(normalized, 0.8) * factor;
+        int enhance(double normalized) {
+          final double boosted = math.pow(normalized, 0.8).toDouble() * factor;
           return (boosted.clamp(0.0, 1.0) * 255).round();
         }
 
         final double glowPhase = math.sin((x / columns) * math.pi) * math.sin((y / rows) * math.pi);
         final int glow = (30 * glowPhase.abs()).round();
+        final int alpha = (input.a * 255.0).round().clamp(0, 255);
         return Color.fromARGB(
-          input.alpha,
-          (enhance(input.red) + glow).clamp(0, 255),
-          (enhance(input.green) + glow).clamp(0, 255),
-          (enhance(input.blue) + glow).clamp(0, 255),
+          alpha,
+          (enhance(input.r) + glow).clamp(0, 255),
+          (enhance(input.g) + glow).clamp(0, 255),
+          (enhance(input.b) + glow).clamp(0, 255),
         );
       },
     );
@@ -102,16 +105,17 @@ class DotMatrixStylePreset {
         required int columns,
         required int rows,
       }) {
-        final double luma = 0.2126 * input.red + 0.7152 * input.green + 0.0722 * input.blue;
-        final int base = luma.round().clamp(0, 255).toInt();
+        final double luma = 0.2126 * input.r + 0.7152 * input.g + 0.0722 * input.b;
+        final double base = (luma * 255.0).clamp(0.0, 255.0);
         final double flicker = 0.05 * math.sin((x + y) * 0.8);
-        final double brightness = (base / 255.0 + flicker).clamp(0.1, 1.0);
-        final int value = (brightness * 255).round();
+        final double brightness = ((base / 255.0) + flicker).clamp(0.1, 1.0);
+        final int alpha = (input.a * 255.0).round().clamp(0, 255);
+        final int value = (brightness * 255).round().clamp(0, 255);
         return Color.fromARGB(
-          input.alpha,
-          (value * 1.0).clamp(0, 255).round(),
-          (value * 0.7).clamp(0, 255).round(),
-          (value * 0.2).clamp(0, 255).round(),
+          alpha,
+          value,
+          (value * 0.7).round().clamp(0, 255),
+          (value * 0.2).round().clamp(0, 255),
         );
       },
     );

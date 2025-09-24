@@ -10,18 +10,27 @@ class DotMatrixExampleApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const Color scaffoldColor = Color(0xFF08090D);
+    const Color surfaceColor = Color(0xFF0F1218);
+
+    final ColorScheme scheme = const ColorScheme.dark().copyWith(
+      primary: Colors.cyanAccent,
+      onPrimary: Colors.black,
+      secondary: const Color(0xFF8E44FF),
+      onSecondary: Colors.white,
+      error: Colors.redAccent,
+      onError: Colors.black,
+      surface: surfaceColor,
+      onSurface: Colors.white,
+    );
+
     return MaterialApp(
       title: 'Dot Matrix Widget Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness: Brightness.dark,
-        colorScheme: const ColorScheme.dark(
-          primary: Colors.cyanAccent,
-          secondary: Color(0xFF8E44FF),
-          surface: Color(0xFF0F1218),
-          background: Color(0xFF08090D),
-        ),
-        scaffoldBackgroundColor: const Color(0xFF08090D),
+        colorScheme: scheme,
+        scaffoldBackgroundColor: scaffoldColor,
         useMaterial3: true,
       ),
       home: const DotMatrixDemoPage(),
@@ -473,7 +482,7 @@ class _DemoTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.08),
+        color: Colors.white.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(999),
         border: Border.all(color: Colors.white12),
       ),
