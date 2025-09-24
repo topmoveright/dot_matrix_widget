@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
@@ -26,6 +27,7 @@ class DotMatrixWidget extends StatefulWidget {
     this.blankColor = const Color(0x11000000),
     this.alphaThreshold = 16,
     this.pixelRatio,
+    this.captureInterval = const Duration(milliseconds: 33),
     this.overlayVisible = true,
   }) : assert(dotSize > 0),
        assert(spacing >= 0),
@@ -64,6 +66,10 @@ class DotMatrixWidget extends StatefulWidget {
   /// Optional pixel ratio override for capture.
   final double? pixelRatio;
 
+  /// Minimum interval between successive frame captures. Set to [Duration.zero]
+  /// to disable throttling.
+  final Duration? captureInterval;
+
   /// Whether the dot-matrix overlay should be displayed above the child.
   final bool overlayVisible;
 
@@ -82,6 +88,8 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
   bool _captureScheduled = false;
   bool _isCapturing = false;
   bool _pendingCapture = false;
+  DateTime? _lastCaptureTime;
+  Timer? _throttleTimer;
 
   @override
   void initState() {
@@ -111,27 +119,50 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
 
     final bool visualChange =
         widget.colorMode != oldWidget.colorMode ||
-        widget.singleColor != oldWidget.singleColor ||
         widget.stylePreset != oldWidget.stylePreset ||
         widget.blankColor != oldWidget.blankColor ||
         widget.shape != oldWidget.shape ||
         widget.alphaThreshold != oldWidget.alphaThreshold ||
         widget.alignment != oldWidget.alignment ||
-        widget.overlayVisible != oldWidget.overlayVisible;
+        widget.overlayVisible != oldWidget.overlayVisible ||
+        widget.captureInterval != oldWidget.captureInterval;
 
     if (visualChange) {
       setState(() {});
     }
+
   }
 
   @override
   void dispose() {
+    _throttleTimer?.cancel();
     super.dispose();
   }
 
   void _scheduleCapture() {
     if (!mounted) return;
     if (_captureScheduled) return;
+
+    final Duration? interval = widget.captureInterval;
+    if (interval != null && interval > Duration.zero && _lastCaptureTime != null) {
+      final Duration elapsed = DateTime.now().difference(_lastCaptureTime!);
+      if (elapsed < interval) {
+        final Duration remaining = interval - elapsed;
+        _captureScheduled = true;
+        _throttleTimer?.cancel();
+        _throttleTimer = Timer(remaining, () {
+          _throttleTimer = null;
+          if (!mounted) {
+            _captureScheduled = false;
+            return;
+          }
+          _captureScheduled = false;
+          _scheduleCapture();
+        });
+        return;
+      }
+    }
+
     _captureScheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       _captureScheduled = false;
@@ -203,6 +234,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
       setState(() {
         _frame = frame;
       });
+      _lastCaptureTime = DateTime.now();
     } catch (error) {
       debugPrint('DotMatrixWidget capture failed: $error');
     } finally {
