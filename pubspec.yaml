@@ -1,6 +1,8 @@
 name: dot_matrix_widget
 description: "Render any widget as a customizable dot-matrix display in Flutter."
 version: 0.1.0
+homepage: https://github.com/topmoveright/dot_matrix_widget
+
 
 environment:
   sdk: '>=3.3.0 <4.0.0'
