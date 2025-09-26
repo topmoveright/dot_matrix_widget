@@ -28,7 +28,7 @@ class DotMatrixWidget extends StatefulWidget {
     this.alphaThreshold = 16,
     this.pixelRatio,
     this.captureInterval = const Duration(milliseconds: 33),
-    this.overlayVisible = true,
+    this.showDotLayer = true,
   })  : assert(dotSize > 0),
         assert(spacing >= 0),
         assert(alphaThreshold >= 0 && alphaThreshold <= 255);
@@ -71,7 +71,7 @@ class DotMatrixWidget extends StatefulWidget {
   final Duration? captureInterval;
 
   /// Whether the dot-matrix overlay should be displayed above the child.
-  final bool overlayVisible;
+  final bool showDotLayer;
 
   @override
   State<DotMatrixWidget> createState() => _DotMatrixWidgetState();
@@ -90,6 +90,8 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
   bool _pendingCapture = false;
   DateTime? _lastCaptureTime;
   Timer? _throttleTimer;
+  int _warmupCapturesRemaining =
+      24; // Retry more frames to catch late image loads
 
   @override
   void initState() {
@@ -113,6 +115,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
         widget.pixelRatio != oldWidget.pixelRatio;
 
     if (requiresCapture) {
+      _warmupCapturesRemaining = 6; // reset warmup on structural changes
       _scheduleCapture();
     }
 
@@ -122,7 +125,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
         widget.shape != oldWidget.shape ||
         widget.alphaThreshold != oldWidget.alphaThreshold ||
         widget.alignment != oldWidget.alignment ||
-        widget.overlayVisible != oldWidget.overlayVisible ||
+        widget.showDotLayer != oldWidget.showDotLayer ||
         widget.captureInterval != oldWidget.captureInterval;
 
     if (visualChange) {
@@ -189,12 +192,14 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     final BuildContext? context = _repaintKey.currentContext;
     if (context == null) {
       _pendingCapture = true;
+      _scheduleCapture();
       return;
     }
 
     final RenderObject? renderObject = context.findRenderObject();
     if (renderObject is! RenderRepaintBoundary) {
       _pendingCapture = true;
+      _scheduleCapture();
       return;
     }
 
@@ -202,6 +207,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
 
     if (boundary.size.isEmpty) {
       _pendingCapture = true;
+      _scheduleCapture();
       return;
     }
 
@@ -216,9 +222,9 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     _isCapturing = true;
     ui.Image? capturedImage;
     try {
-      final double pixelRatio = widget.pixelRatio ??
-          MediaQuery.maybeOf(context)?.devicePixelRatio ??
-          1.0;
+      // Use logical pixel resolution by default to reduce capture cost.
+      // This keeps sampling grid proportional to layout instead of device DPR.
+      final double pixelRatio = widget.pixelRatio ?? 1.0;
       capturedImage = await boundary.toImage(pixelRatio: pixelRatio);
       final DotMatrixFrameData frame = await _renderer.render(
         image: capturedImage,
@@ -241,6 +247,10 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
       if (_pendingCapture) {
         _pendingCapture = false;
         _scheduleCapture();
+      } else if (_warmupCapturesRemaining > 0) {
+        // Keep trying for a few frames to capture late-loading images
+        _warmupCapturesRemaining--;
+        _scheduleCapture();
       }
     }
   }
@@ -253,23 +263,57 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
     );
   }
 
+  DotMatrixFrameData _buildFallbackFrame(BoxConstraints constraints) {
+    final double maxW =
+        constraints.biggest.width.isFinite ? constraints.biggest.width : 1.0;
+    final double maxH =
+        constraints.biggest.height.isFinite ? constraints.biggest.height : 1.0;
+    final double cellSize =
+        (widget.dotSize + widget.spacing).clamp(0.1, double.infinity);
+    final int columns =
+        ((maxW + widget.spacing) / cellSize).floor().clamp(1, 1 << 14);
+    final int rows =
+        ((maxH + widget.spacing) / cellSize).floor().clamp(1, 1 << 14);
+    final int len = columns * rows;
+    return DotMatrixFrameData(
+      columns: columns,
+      rows: rows,
+      dotSize: widget.dotSize,
+      spacing: widget.spacing,
+      alignment: widget.alignment,
+      boardSize: Size(
+        columns * widget.dotSize + (columns - 1) * widget.spacing,
+        rows * widget.dotSize + (rows - 1) * widget.spacing,
+      ),
+      sampledColors: List<ui.Color>.filled(len, const ui.Color(0x00000000)),
+      alphaMask: List<int>.filled(len, 0),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         _handleConstraints(constraints);
         final DotMatrixFrameData? frame = _frame;
+        if (frame == null &&
+            _warmupCapturesRemaining > 0 &&
+            !_captureScheduled &&
+            !_isCapturing) {
+          // Ensure we keep trying until we capture a valid frame (e.g., after images load)
+          _scheduleCapture();
+        }
         final DotColorStrategy colorStrategy = _buildColorStrategy();
         final DotShape shape = widget.shape.toShape();
-        final CustomPainter? painter = frame == null
-            ? null
-            : DotMatrixPainter(
-                frame: frame,
-                shape: shape,
-                blankColor: widget.blankColor,
-                alphaThreshold: widget.alphaThreshold,
-                colorStrategy: colorStrategy,
-              );
+        final DotMatrixFrameData effectiveFrame =
+            frame ?? _buildFallbackFrame(constraints);
+        final CustomPainter painter = DotMatrixPainter(
+          frame: effectiveFrame,
+          shape: shape,
+          blankColor: widget.blankColor,
+          alphaThreshold: widget.alphaThreshold,
+          colorStrategy: colorStrategy,
+        );
 
         return Stack(
           fit: StackFit.expand,
@@ -280,7 +324,7 @@ class _DotMatrixWidgetState extends State<DotMatrixWidget> {
                 child: SizedBox.expand(child: widget.child),
               ),
             ),
-            if (painter != null && widget.overlayVisible)
+            if (widget.showDotLayer)
               Positioned.fill(
                 child: CustomPaint(painter: painter, isComplex: true),
               ),

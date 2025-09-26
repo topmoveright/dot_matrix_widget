@@ -1,8 +1,8 @@
 # dot_matrix_widget
 
-<center>
-<img src="https://raw.githubusercontent.com/topmoveright/dot_matrix_widget/refs/heads/main/screenshots/screenshot.png" alt="screenshot">
-</center>
+
+<img width="884" height="204" alt="Image" src="https://github.com/user-attachments/assets/88ac1fbb-6944-4c87-abc3-62df4e361ee0" />
+
 
 Render any Flutter widget as a dot-matrix (LED/LCD) display. The package captures its child and redraws it using configurable dot shapes, spacing, and color treatments to produce a retro display effect.
 
@@ -23,7 +23,7 @@ Add the dependency to your `pubspec.yaml`:
 
 ```yaml
 dependencies:
-  dot_matrix_widget: ^0.1.0
+  dot_matrix_widget: ^0.1.1
 ```
 
 Then run:
